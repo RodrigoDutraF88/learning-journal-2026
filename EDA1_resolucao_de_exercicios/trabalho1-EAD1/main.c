@@ -41,17 +41,17 @@ typedef struct DescritorS {
 } TDescritorS;
  
 /* --- Dados unificados (acrescenta campo Tipo) --- */
-typedef struct CadastroU {
+typedef struct CadastroUnificado {
     char CNPJ[15];
     char RazaoSocial[50];
     char Cidade[30];
     char Fone[12];
     char Tipo; /* 'I' = Industria | 'C' = Comercio | 'S' = Servico */
-} TCadastroU;
+} TCadastroUnificado;
  
 /* --- Lista Unificada: duplamente encadeada COM descritor --- */
 typedef struct NoU {
-    TCadastroU *Dados;
+    TCadastroUnificado *Dados;
     struct NoU *Ant;
     struct NoU *Prox;
 } TNoU;
