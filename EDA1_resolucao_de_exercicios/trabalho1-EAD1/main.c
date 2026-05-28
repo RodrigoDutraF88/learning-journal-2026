@@ -1,12 +1,3 @@
-/*
- * EDA - ATIVIDADE PRATICA 02
- * Disciplina: Estruturas de Dados I - UnB/FGA
- *
- * Descricao: Unificacao de cadastros de contribuintes do DF
- * (Industria, Comercio e Servicos) em uma lista duplamente
- * encadeada com descritor.
- */
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
