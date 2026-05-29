@@ -2,10 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task} from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 
 @Injectable()
 export class TasksService {
+
+    constructor(private prisma: PrismaService){}
 
     private tasks:  Task[] = [
         {
@@ -16,9 +19,9 @@ export class TasksService {
         }
     ]
 
-    findAll(){
-        return this.tasks;
-    
+    async findAll(){
+        const alltasks = await this.prisma.task.findMany();
+        return alltasks;
     }
 
     findOne(id: number){
