@@ -7,7 +7,9 @@ import { ValidationPipe } from '@nestjs/common';
 // service: contem a logica de negocio separado do controlador
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);// cria o modulo principal
-  app.useGlobalPipes(new ValidationPipe()) 
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // se TRUE ele remove as chaves que nao estao no DTO
+  })) 
   await app.listen(process.env.PORT ?? 3000); //ouve na porta 3000
 }
 bootstrap(); //funcao para inicializar o projeto
