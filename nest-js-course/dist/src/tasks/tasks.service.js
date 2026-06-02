@@ -17,20 +17,20 @@ let TasksService = class TasksService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    tasks = [
-        {
-            id: 1,
-            name: "testando entity",
-            description: "aprendendo",
-            completed: false,
-        }
-    ];
-    async findAll() {
-        const alltasks = await this.prisma.task.findMany();
+    async findAll(paginationDto) {
+        const { limit = 10, offset = 0 } = paginationDto || {};
+        const alltasks = await this.prisma.task.findMany({
+            take: limit,
+            skip: offset
+        });
         return alltasks;
     }
     findOne(id) {
-        const task = this.tasks.find(task => task.id == id);
+        const task = this.prisma.task.findFirst({
+            where: {
+                id: id
+            }
+        });
         if (task)
             return task;
         throw new common_1.HttpException("essa tarefa nao existe", common_1.HttpStatus.NOT_FOUND);
@@ -45,27 +45,45 @@ let TasksService = class TasksService {
         });
         return newTask;
     }
-    update(id, UpdateTaskDto) {
-        const taskIndex = this.tasks.findIndex(task => task.id == id);
-        if (taskIndex < 0) {
-            throw new common_1.HttpException("essa tarefa nao existe", common_1.HttpStatus.NOT_FOUND);
+    async update(id, UpdateTaskDto) {
+        const findTask = await this.prisma.task.findFirst({
+            where: {
+                id: id
+            }
+        });
+        if (!findTask) {
+            throw new common_1.HttpException("Essa tarefa não existe", common_1.HttpStatus.NOT_FOUND);
         }
-        const taskItem = this.tasks[taskIndex];
-        this.tasks[taskIndex] = {
-            ...taskItem,
-            ...UpdateTaskDto,
-        };
-        return "tarefa atualizada com sucesso";
+        const task = await this.prisma.task.update({
+            where: {
+                id: findTask.id
+            },
+            data: UpdateTaskDto
+        });
+        return task;
     }
-    delete(id) {
-        const taskIndex = this.tasks.findIndex(task => task.id == id);
-        if (taskIndex < 0) {
-            throw new common_1.HttpException("essa tarefa nao existe", common_1.HttpStatus.NOT_FOUND);
+    async delete(id) {
+        try {
+            const findTask = await this.prisma.task.findFirst({
+                where: {
+                    id: id
+                }
+            });
+            if (!findTask) {
+                throw new common_1.HttpException("Essa tarefa não existe", common_1.HttpStatus.NOT_FOUND);
+            }
+            await this.prisma.task.delete({
+                where: {
+                    id: findTask.id
+                }
+            });
+            return {
+                message: "Tarefa deletada com sucesso"
+            };
         }
-        this.tasks.splice(taskIndex, 1);
-        return {
-            message: "task deletada"
-        };
+        catch (err) {
+            throw new common_1.HttpException("Falha ao deletar tarefa", common_1.HttpStatus.BAD_REQUEST);
+        }
     }
 };
 exports.TasksService = TasksService;

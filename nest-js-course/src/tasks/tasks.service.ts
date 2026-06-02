@@ -14,7 +14,7 @@ export class TasksService {
 
 
     async findAll(paginationDto?: PaginationDto){
-        const { limit = 10, offset = 0} = paginationDto;
+        const { limit = 10, offset = 0} = paginationDto || {};
 
         const alltasks = await this.prisma.task.findMany({
             take: limit,
@@ -24,7 +24,11 @@ export class TasksService {
     }
 
     findOne(id: number){
-       const task = this.tasks.find(task => task.id == id)
+       const task = this.prisma.task.findFirst({
+        where:{
+            id: id
+        }
+       })
 
        if ( task) return task;
 

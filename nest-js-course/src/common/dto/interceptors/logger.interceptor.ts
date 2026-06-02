@@ -5,6 +5,6 @@ import { Observable } from "rxjs";
 export class LoggerInterceptor implements NestInterceptor{
     intercept ( contet: ExecutionContext, next: CallHandler<any>): Observable<any> |
     Promise<Observable<any>> {
-        return next.handle.pipe()
+        return next.handle().pipe()
     }
 }
