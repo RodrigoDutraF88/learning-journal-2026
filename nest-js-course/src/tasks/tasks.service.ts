@@ -37,19 +37,28 @@ export class TasksService {
     }
 
     async create(CreateTaskDto: CreateTaskDto){
-        const newTask = await this.prisma.task.create({
+        try{
+            const newTask = await this.prisma.task.create({
             data:{
                 name: CreateTaskDto.name,
                 description: CreateTaskDto.description,
                 completed: false,
+                userId: CreateTaskDto.userId
             }
-        })
+            })
 
-        return newTask;
+            return newTask;
        
+        }catch(err){
+            console.log(err);
+             throw new HttpException("falha ao registrar nova tarefa", HttpStatus.BAD_REQUEST)
+
+
+        }
+
     }
 
-    async update(id: number, UpdateTaskDto: UpdateTaskDto){
+    async update(id: number, updateTaskDto: UpdateTaskDto){
         const findTask = await this.prisma.task.findFirst({
             where:{
                 id: id
@@ -62,7 +71,12 @@ export class TasksService {
             where:{
                 id: findTask.id
             },
-            data: UpdateTaskDto
+            data: {
+                name: updateTaskDto?.name ? updateTaskDto?.name : findTask.name,
+                description: updateTaskDto?.description ? updateTaskDto?.description : findTask.description,
+                completed: updateTaskDto?.completed ? updateTaskDto?.completed : findTask.completed
+
+            }
         })
 
         return task;

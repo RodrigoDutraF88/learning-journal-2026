@@ -33,7 +33,7 @@ model User{
   email        String    @unique
 
   createdAt    DateTime? @default(now()) 
-  Task          Task[]
+  Task          Task[] // um user pode ter varias tasks
 
 
 }

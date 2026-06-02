@@ -1,6 +1,6 @@
 //dto é um DATA TRANSFER OBJECT ( objeto de transferencia de dados )//
 
-import { IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
 
 //validar dados, transformar dados
 // se usa para representar quais dados e em que formatos determinada camada aceita e trabalha
@@ -15,5 +15,10 @@ export class CreateTaskDto{
     @MinLength(5)
     @IsNotEmpty()
     readonly description!: string;
+
+    @IsNumber()
+    @IsNotEmpty() //agora deve sempre haver isso
+    readonly userId!: number;
+
 
 }
