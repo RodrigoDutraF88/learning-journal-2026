@@ -17,13 +17,15 @@ const common_1 = require("@nestjs/common");
 const tasks_service_1 = require("./tasks.service");
 const create_tasks_dto_1 = require("./dto/create-tasks.dto");
 const update_task_dto_1 = require("./dto/update-task.dto");
+const pagination_dto_1 = require("../common/dto/pagination.dto");
+const logger_interceptor_1 = require("../common/dto/interceptors/logger.interceptor");
 let TasksController = class TasksController {
     taskService;
     constructor(taskService) {
         this.taskService = taskService;
     }
-    findAllTasks() {
-        return this.taskService.findAll();
+    findAllTasks(paginationDto) {
+        return this.taskService.findAll(paginationDto);
     }
     findOneTask(id) {
         return this.taskService.findOne(id);
@@ -41,8 +43,9 @@ let TasksController = class TasksController {
 exports.TasksController = TasksController;
 __decorate([
     (0, common_1.Get)(""),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "findAllTasks", null);
 __decorate([
@@ -76,6 +79,7 @@ __decorate([
 ], TasksController.prototype, "deleteTask", null);
 exports.TasksController = TasksController = __decorate([
     (0, common_1.Controller)('tasks'),
+    (0, common_1.UseInterceptors)(logger_interceptor_1.LoggerInterceptor),
     __metadata("design:paramtypes", [tasks_service_1.TasksService])
 ], TasksController);
 //# sourceMappingURL=tasks.controller.js.map
