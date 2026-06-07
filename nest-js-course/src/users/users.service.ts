@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateuserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 @Injectable()
 export class UsersService {
@@ -58,7 +59,7 @@ export class UsersService {
         }
     }   
 
-    async update(id: number, updateUserDto: UpdateUserDto){
+    async update(id: number, updateUserDto: UpdateUserDto, tokenPayload: PayloadTokenDto ){
         try{
             const user = await this.prisma.user.findFirst({
                 where:{
@@ -68,6 +69,12 @@ export class UsersService {
 
             if(!user){
                   throw new HttpException('Falha ao atualizar', HttpStatus.NOT_FOUND);
+
+            }
+
+            if(user.id !== tokenPayload.sub){
+                  throw new HttpException('Acesso negado', HttpStatus.BAD_REQUEST);
+
 
             }
 
@@ -96,7 +103,7 @@ export class UsersService {
                 }
             })
         }catch(err){
-             throw new HttpException('Usuario nao encontrado', HttpStatus.NOT_FOUND);
+             throw new HttpException('Falha ao atualizar usuario', HttpStatus.NOT_FOUND);
 
         }
 
@@ -106,7 +113,7 @@ export class UsersService {
             
     }
 
-    async delete(id: number){
+    async delete(id: number, tokenPayload: PayloadTokenDto){
         try{
             const user = await this.prisma.user.findFirst({
                 where:{
@@ -116,6 +123,12 @@ export class UsersService {
 
             if(!user){
                   throw new HttpException('Falha ao atualizar', HttpStatus.NOT_FOUND);
+
+            }
+
+            if(user.id !== tokenPayload.sub){
+                  throw new HttpException('acesso negado', HttpStatus.BAD_REQUEST);
+
 
             }
 

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/hashing.service';
 import jwtConfig from './config/jwt.config';
 import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,8 @@ export class AuthService {
         private readonly hashingService: HashingServiceProtocol,
 
         @Inject(jwtConfig.KEY)
-        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
+        private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+        private readonly jwtService: JwtService
     ) { }
 
 
@@ -22,12 +24,13 @@ export class AuthService {
     async authenticate(sigInDto: SignInDto) {
         const user = await this.prisma.user.findFirst({
             where: {
-                email: sigInDto.email
+                email: sigInDto.email,
+                active: true
             }
         })
 
         if (!user) {
-            throw new HttpException("Falha ap fazer login", HttpStatus.UNAUTHORIZED)
+            throw new HttpException("Falha ao authenticar o usuario", HttpStatus.UNAUTHORIZED)
 
         }
 
@@ -39,10 +42,26 @@ export class AuthService {
 
         }
 
+        const token = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+                email: user.email
+
+            },
+            {
+                secret: this.jwtConfiguration.secret,
+                expireIn: this.jwtConfiguration.jwtTtl,
+                audience: this.jwtConfiguration.audience,
+                issuer: this.jwtConfiguration.issuer
+
+            }
+        )
+
         return{
             id: user.id,
             name: user.name,
             email: user.email,
+            token: token
         }
 
     }

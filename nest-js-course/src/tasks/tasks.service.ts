@@ -4,6 +4,7 @@ import { CreateTaskDto } from './dto/create-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 
 @Injectable()
@@ -36,14 +37,14 @@ export class TasksService {
 
     }
 
-    async create(CreateTaskDto: CreateTaskDto){
+    async create(CreateTaskDto: CreateTaskDto, tokenPayload: PayloadTokenDto){
         try{
             const newTask = await this.prisma.task.create({
             data:{
                 name: CreateTaskDto.name,
                 description: CreateTaskDto.description,
                 completed: false,
-                userId: CreateTaskDto.userId
+                userId: tokenPayload.sub
             }
             })
 
@@ -58,7 +59,7 @@ export class TasksService {
 
     }
 
-    async update(id: number, updateTaskDto: UpdateTaskDto){
+    async update(id: number, updateTaskDto: UpdateTaskDto, tokenPayload: PayloadTokenDto){
         const findTask = await this.prisma.task.findFirst({
             where:{
                 id: id
@@ -66,6 +67,10 @@ export class TasksService {
         })
         if (!findTask){
             throw new HttpException("Essa tarefa não existe", HttpStatus.NOT_FOUND)
+        }
+        if(findTask.userId !== tokenPayload.sub){
+            throw new HttpException("Essa tarefa não existe", HttpStatus.NOT_FOUND)
+
         }
         const task = await this.prisma.task.update({
             where:{
@@ -83,7 +88,7 @@ export class TasksService {
         
 
     }
-    async delete(id: number){
+    async delete(id: number, tokenPayload: PayloadTokenDto ){
         try{
                 const findTask = await this.prisma.task.findFirst({
                 where:{
@@ -92,6 +97,11 @@ export class TasksService {
             })
             if (!findTask){
                 throw new HttpException("Essa tarefa não existe", HttpStatus.NOT_FOUND)
+            }
+
+            if(findTask.userId !== tokenPayload.sub){
+                throw new HttpException("Falha ao deletar essa tarefa", HttpStatus.BAD_GATEWAY)
+
             }
 
             await this.prisma.task.delete({
