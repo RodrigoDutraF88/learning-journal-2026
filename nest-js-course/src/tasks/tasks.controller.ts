@@ -5,6 +5,9 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { AuthAdminGuard } from 'src/common/guards/admin.guard';
+import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
 
 
 
@@ -21,8 +24,7 @@ export class TasksController {
      
     ){}  
 
-    @Get("")
-    @UseGuards(AuthAdminGuard)
+    @Get()
     findAllTasks(@Query() paginationDto: PaginationDto) {
 
         return this.taskService.findAll(paginationDto)      
@@ -34,22 +36,34 @@ export class TasksController {
         return this.taskService.findOne(id);
     }
 
-    @Post("/create")
-    createTask(@Body() createTaskDto: CreateTaskDto ){
+    @UseGuards(AuthTokenGuard)
+    @Post()
+    createTask(
+        @Body() createTaskDto: CreateTaskDto ,
+         @TokenPayloadParam() tokenPayload: PayloadTokenDto
+    ){
  
-        return this.taskService.create(createTaskDto);
+        return this.taskService.create(createTaskDto, tokenPayload);
 
     }
 
+    @UseGuards(AuthTokenGuard)
     @Patch(":id")
-    updateTask(@Param('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateTaskDto){
-        return this.taskService.update(id, updateTaskDto);
+    updateTask(
+        @Param('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateTaskDto,
+         @TokenPayloadParam() tokenPayload: PayloadTokenDto
+    ){
+        return this.taskService.update(id, updateTaskDto, tokenPayload);
     }
 
+    @UseGuards(AuthTokenGuard)
     @Delete(":id")
-    deleteTask(@Param('id', ParseIntPipe) id: number){
+    deleteTask(
+        @Param('id', ParseIntPipe) id: number,
+        @TokenPayloadParam() tokenPayload: PayloadTokenDto
+    ){
 
-        return this.taskService.delete(id);
+        return this.taskService.delete(id, tokenPayload);
     }
 
 }
