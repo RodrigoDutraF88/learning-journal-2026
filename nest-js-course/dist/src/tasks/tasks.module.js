@@ -11,6 +11,9 @@ const common_1 = require("@nestjs/common");
 const tasks_controller_1 = require("./tasks.controller");
 const tasks_service_1 = require("./tasks.service");
 const prisma_module_1 = require("../prisma/prisma.module");
+const exception_filter_1 = require("../common/filters/exception-filter");
+const core_1 = require("@nestjs/core");
+const tasks_utils_1 = require("./tasks.utils");
 let TasksModule = class TasksModule {
 };
 exports.TasksModule = TasksModule;
@@ -18,7 +21,18 @@ exports.TasksModule = TasksModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         controllers: [tasks_controller_1.TasksController],
-        providers: [tasks_service_1.TasksService]
+        providers: [
+            tasks_service_1.TasksService,
+            tasks_utils_1.TaskUtils,
+            {
+                provide: core_1.APP_FILTER,
+                useClass: exception_filter_1.ApiExceptionFilter
+            },
+            {
+                provide: "KEY_TOKEN",
+                useValue: "TOKENE_123456789"
+            }
+        ]
     })
 ], TasksModule);
 //# sourceMappingURL=tasks.module.js.map

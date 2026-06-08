@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { ApiExpeptionFilter } from 'src/common/filters/exception-filter';
+import { ApiExceptionFilter } from 'src/common/filters/exception-filter';
 import { APP_FILTER } from '@nestjs/core';
 import { TaskUtils } from './tasks.utils';
 
@@ -14,7 +14,7 @@ import { TaskUtils } from './tasks.utils';
     TaskUtils,
     {
       provide: APP_FILTER,
-      useClass: ApiExpeptionFilter
+      useClass: ApiExceptionFilter
     },
     {
       provide: "KEY_TOKEN",

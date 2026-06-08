@@ -4,7 +4,9 @@ import { CreateuserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
-
+import path from 'path';
+import fs from 'fs/promises';
+    
 @Injectable()
 export class UsersService {
 
@@ -147,6 +149,48 @@ export class UsersService {
         }
     }
 
+    async uploadAvatarImage(tokenPayload: PayloadTokenDto, file: any) {
+    try {
+        const mimeType = file.mimetype;
+        const fileExtension = path.extname(file.originalname).toLowerCase().substring(1);
+
+        const fileName = `${tokenPayload.sub}.${fileExtension}`;
+
+        const fileLocale = path.resolve(process.cwd(), 'files', fileName);
+
+        await fs.writeFile(fileLocale, file.buffer);
+
+        const user = await this.prisma.user.findFirst({
+        where: {
+            id: tokenPayload.sub
+        }
+        });
+
+        if (!user) {
+        throw new HttpException('Falha ao atualizar o avatar do usuário!', HttpStatus.BAD_REQUEST);
+        }
+
+        const updatedUser = await this.prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            avatar: fileName // Ajuste este campo conforme o nome da coluna no seu banco
+        },
+        select:{
+            id: true,
+            email:true,
+            avatar: true,
+            name: true
+        }
+        });
+
+        return updatedUser;
+    } catch (err) {
+        console.log(err);
+        throw new HttpException('Falha ao atualizar o avatar do usuário!', HttpStatus.BAD_REQUEST);
+    }
+    }
 
 
 

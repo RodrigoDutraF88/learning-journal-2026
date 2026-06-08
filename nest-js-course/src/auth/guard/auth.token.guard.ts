@@ -4,6 +4,8 @@ import { Observable } from "rxjs";
 import jwtConfig from "../config/jwt.config";
 import { REQUEST_TOKEN_PAYLOAD_NAME } from "../common/auth.constants";
 import { PrismaService } from "src/prisma/prisma.service";
+import type { ConfigType } from "@nestjs/config";
+import { Request } from "express";
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate{
@@ -17,9 +19,10 @@ export class AuthTokenGuard implements CanActivate{
       
     ){ }
 
-    async canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         
-        const request: Request = context.switchToHttp().getRequest();
+        
+        const request: Request = context.switchToHttp().getRequest<Request>();
         const token = this.extractTokenHeader(request);
         if (!token){
             throw new UnauthorizedException("Token não encontrado")
@@ -35,21 +38,29 @@ export class AuthTokenGuard implements CanActivate{
                 }
             })
 
+            if (!user) {
+                throw new UnauthorizedException("Acesso não autorizado");
+            }
+
             if(!user.active){
                 throw new UnauthorizedException("Acesso não autorizado")
 
             }
+
+            return true;
 
 
         }catch(err){
             throw new UnauthorizedException("Token não encontrado")
         }
 
+      
+
 
     }
 
     extractTokenHeader(request: Request){
-        const authorization = request.headers?.authorization
+        const authorization = request.headers?.authorization;
 
         if(!authorization || typeof authorization !== "string"){
             return
@@ -57,4 +68,5 @@ export class AuthTokenGuard implements CanActivate{
 
         return authorization.split(' ')[1];
     }
+   
 }
