@@ -1,8 +1,10 @@
 import { ExceptionFilter, Catch, HttpException, ArgumentsHost } from "@nestjs/common";
+import { Response, Request } from "express"; // ✅ importar do express;
+
 
 @Catch(HttpException)
-export class ApiExpeptionFilter implements ExceptionFilter{
-    catch(exception: HttpException, host: ArgumentsHost){
+export class ApiExceptionFilter implements ExceptionFilter {
+    catch(exception: HttpException, host: ArgumentsHost) {
 
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -12,8 +14,12 @@ export class ApiExpeptionFilter implements ExceptionFilter{
 
         console.log("PASSANDO DENTRO DE FILTER .........")
 
-   
+        // ✅ isso estava faltando — sem isso a requisição trava para sempre
+        response.status(status).json({
+            statusCode: status,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            error: errorResponse
+        });
     }
-
-
 }

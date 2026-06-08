@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const hashing_service_1 = require("../auth/hash/hashing.service");
 let UsersService = class UsersService {
     prisma;
-    constructor(prisma) {
+    hashingservice;
+    constructor(prisma, hashingservice) {
         this.prisma = prisma;
+        this.hashingservice = hashingservice;
     }
     async findOne(id) {
         const user = await this.prisma.user.findFirst({
@@ -26,6 +29,7 @@ let UsersService = class UsersService {
                 id: true,
                 email: true,
                 name: true,
+                Task: true
             }
         });
         if (user)
@@ -34,11 +38,12 @@ let UsersService = class UsersService {
     }
     async createUser(createuserDto) {
         try {
+            const passwordHash = await this.hashingservice.hash(createuserDto.password);
             const newUser = await this.prisma.user.create({
                 data: {
                     name: createuserDto.name,
                     email: createuserDto.email,
-                    passwordHash: createuserDto.password
+                    passwordHash: passwordHash
                 },
                 select: {
                     id: true,
@@ -52,27 +57,76 @@ let UsersService = class UsersService {
             throw new common_1.HttpException('Usuario nao encontrado', common_1.HttpStatus.NOT_FOUND);
         }
     }
-    async update(id, updateUserDto) {
+    async update(id, updateUserDto, tokenPayload) {
         try {
             const user = await this.prisma.user.findFirst({
                 where: {
                     id: id,
                 },
+            });
+            if (!user) {
+                throw new common_1.HttpException('Falha ao atualizar', common_1.HttpStatus.NOT_FOUND);
+            }
+            if (user.id !== tokenPayload.sub) {
+                throw new common_1.HttpException('Acesso negado', common_1.HttpStatus.BAD_REQUEST);
+            }
+            const dataUser = {
+                name: updateUserDto.name ? updateUserDto.name : user.name,
+            };
+            if (updateUserDto?.password) {
+                const passwordHash = await this.hashingservice.hash(updateUserDto.password);
+                dataUser['passwordHash'] = passwordHash;
+            }
+            const updateUser = await this.prisma.user.update({
+                where: {
+                    id: user.id,
+                },
+                data: {
+                    name: dataUser.name,
+                    passwordHash: dataUser?.passwordHash ? dataUser?.passwordHash : user.passwordHash
+                },
                 select: {
                     id: true,
-                    email: true,
                     name: true,
+                    email: true,
                 }
             });
         }
         catch (err) {
-            throw new common_1.HttpException('Usuario nao encontrado', common_1.HttpStatus.NOT_FOUND);
+            throw new common_1.HttpException('Falha ao atualizar usuario', common_1.HttpStatus.NOT_FOUND);
+        }
+    }
+    async delete(id, tokenPayload) {
+        try {
+            const user = await this.prisma.user.findFirst({
+                where: {
+                    id: id,
+                },
+            });
+            if (!user) {
+                throw new common_1.HttpException('Falha ao atualizar', common_1.HttpStatus.NOT_FOUND);
+            }
+            if (user.id !== tokenPayload.sub) {
+                throw new common_1.HttpException('acesso negado', common_1.HttpStatus.BAD_REQUEST);
+            }
+            await this.prisma.user.delete({
+                where: {
+                    id: user.id
+                }
+            });
+            return {
+                message: "usuario deletado com sucesso"
+            };
+        }
+        catch (err) {
+            throw new common_1.HttpException('Falha a deletar user', common_1.HttpStatus.NOT_FOUND);
         }
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        hashing_service_1.HashingServiceProtocol])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

@@ -35,17 +35,24 @@ let TasksService = class TasksService {
             return task;
         throw new common_1.HttpException("essa tarefa nao existe", common_1.HttpStatus.NOT_FOUND);
     }
-    async create(CreateTaskDto) {
-        const newTask = await this.prisma.task.create({
-            data: {
-                name: CreateTaskDto.name,
-                description: CreateTaskDto.description,
-                completed: false,
-            }
-        });
-        return newTask;
+    async create(CreateTaskDto, tokenPayload) {
+        try {
+            const newTask = await this.prisma.task.create({
+                data: {
+                    name: CreateTaskDto.name,
+                    description: CreateTaskDto.description,
+                    completed: false,
+                    userId: tokenPayload.sub
+                }
+            });
+            return newTask;
+        }
+        catch (err) {
+            console.log(err);
+            throw new common_1.HttpException("falha ao registrar nova tarefa", common_1.HttpStatus.BAD_REQUEST);
+        }
     }
-    async update(id, UpdateTaskDto) {
+    async update(id, updateTaskDto, tokenPayload) {
         const findTask = await this.prisma.task.findFirst({
             where: {
                 id: id
@@ -54,15 +61,22 @@ let TasksService = class TasksService {
         if (!findTask) {
             throw new common_1.HttpException("Essa tarefa não existe", common_1.HttpStatus.NOT_FOUND);
         }
+        if (findTask.userId !== tokenPayload.sub) {
+            throw new common_1.HttpException("Essa tarefa não existe", common_1.HttpStatus.NOT_FOUND);
+        }
         const task = await this.prisma.task.update({
             where: {
                 id: findTask.id
             },
-            data: UpdateTaskDto
+            data: {
+                name: updateTaskDto?.name ? updateTaskDto?.name : findTask.name,
+                description: updateTaskDto?.description ? updateTaskDto?.description : findTask.description,
+                completed: updateTaskDto?.completed ? updateTaskDto?.completed : findTask.completed
+            }
         });
         return task;
     }
-    async delete(id) {
+    async delete(id, tokenPayload) {
         try {
             const findTask = await this.prisma.task.findFirst({
                 where: {
@@ -71,6 +85,9 @@ let TasksService = class TasksService {
             });
             if (!findTask) {
                 throw new common_1.HttpException("Essa tarefa não existe", common_1.HttpStatus.NOT_FOUND);
+            }
+            if (findTask.userId !== tokenPayload.sub) {
+                throw new common_1.HttpException("Falha ao deletar essa tarefa", common_1.HttpStatus.BAD_GATEWAY);
             }
             await this.prisma.task.delete({
                 where: {
