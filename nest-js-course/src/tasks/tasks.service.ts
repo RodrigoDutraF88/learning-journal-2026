@@ -5,6 +5,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PayloadTokenDto } from 'src/auth/dto/payload-token.dto';
+import { ResponseTaskDto } from './dto/response-task.dto';
 
 
 @Injectable()

@@ -1,1 +1,1 @@
-{"version":3,"file":"task.entity.js","sourceRoot":"","sources":["../../../../src/tasks/entities/task.entity.ts"],"names":[],"mappings":";;;AAAA,MAAa,IAAI;IACb,EAAE,CAAU;IACZ,IAAI,CAAU;IACd,WAAW,CAAU;IACrB,SAAS,CAAW;IACpB,SAAS,CAAQ;CAEpB;AAPD,oBAOC"}
+{"version":3,"file":"task.entity.js","sourceRoot":"","sources":["../../../../src/tasks/entities/task.entity.ts"],"names":[],"mappings":";;;;AAAA,MAAa,IAAI;IACb,EAAE,CAAU;IACZ,IAAI,CAAU;IACd,WAAW,CAAU;IACrB,SAAS,CAAW;IACpB,SAAS,CAAQ;;;;CAEpB;AAPD,oBAOC"}

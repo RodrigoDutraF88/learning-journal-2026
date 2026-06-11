@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TasksController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const tasks_service_1 = require("./tasks.service");
 const create_tasks_dto_1 = require("./dto/create-tasks.dto");
@@ -22,6 +23,7 @@ const logger_interceptor_1 = require("../common/interceptors/logger.interceptor"
 const auth_token_guard_1 = require("../auth/guard/auth.token.guard");
 const token_payload_param_1 = require("../auth/param/token-payload.param");
 const payload_token_dto_1 = require("../auth/dto/payload-token.dto");
+const swagger_1 = require("@nestjs/swagger");
 let TasksController = class TasksController {
     taskService;
     keyToken;
@@ -48,6 +50,8 @@ let TasksController = class TasksController {
 exports.TasksController = TasksController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Buscar todas as tarefas' }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
@@ -55,6 +59,8 @@ __decorate([
 ], TasksController.prototype, "findAllTasks", null);
 __decorate([
     (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: 'Buscar por uma tarefa' }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -62,7 +68,10 @@ __decorate([
 ], TasksController.prototype, "findOneTask", null);
 __decorate([
     (0, common_1.UseGuards)(auth_token_guard_1.AuthTokenGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Criar nova tarefa' }),
     (0, common_1.Post)(),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, token_payload_param_1.TokenPayloadParam)()),
     __metadata("design:type", Function),
@@ -72,7 +81,10 @@ __decorate([
 ], TasksController.prototype, "createTask", null);
 __decorate([
     (0, common_1.UseGuards)(auth_token_guard_1.AuthTokenGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Atualizar uma tarefa' }),
     (0, common_1.Patch)(":id"),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, token_payload_param_1.TokenPayloadParam)()),
@@ -83,7 +95,10 @@ __decorate([
 ], TasksController.prototype, "updateTask", null);
 __decorate([
     (0, common_1.UseGuards)(auth_token_guard_1.AuthTokenGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Deletar uma tarefa' }),
     (0, common_1.Delete)(":id"),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, token_payload_param_1.TokenPayloadParam)()),
     __metadata("design:type", Function),

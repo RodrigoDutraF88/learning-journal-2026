@@ -9,6 +9,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 
 
@@ -56,6 +57,7 @@ export class UsersController {
     }
 
     //@UseGuards(AuthTokenGuard)
+    @ApiConsumes('multipart/fromt-data')
     @UseInterceptors(FileInterceptor('file'))
     @Post('upload')
     async upLoadAvatar(
