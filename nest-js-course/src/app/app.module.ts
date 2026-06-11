@@ -18,7 +18,11 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', '..', 'files'),
       serveRoot: "/files"
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: process.env.NODE_ENV ?
+      `.env.${process.env.NODE_ENV}` :
+      `.env`
+    }),
     TasksModule,
      UsersModule,
      AuthModule

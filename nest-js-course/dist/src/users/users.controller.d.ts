@@ -6,26 +6,31 @@ export declare class UsersController {
     private readonly userService;
     constructor(userService: UsersService);
     findOneUser(id: number): Promise<{
-        id: number;
         name: string;
-        email: string;
+        id: number;
         Task: {
-            id: number;
             name: string;
-            createdAt: Date | null;
             description: string;
             completed: boolean;
+            id: number;
+            createdAt: Date | null;
             userId: number | null;
         }[];
+        email: string;
     }>;
     createUser(createUserDto: CreateuserDto): Promise<{
-        id: number;
         name: string;
+        id: number;
         email: string;
     }>;
     updateUser(id: number, updateUserDto: UpdateUserDto, tokenPayload: PayloadTokenDto): Promise<void>;
     deleteUser(id: number, tokenPayload: PayloadTokenDto): Promise<{
         message: string;
     }>;
-    upLoadAvatar(tokenPayload: PayloadTokenDto, files: any[]): Promise<boolean>;
+    upLoadAvatar(tokenPayload: PayloadTokenDto, file: any[]): Promise<{
+        name: string;
+        id: number;
+        email: string;
+        avatar: string | null;
+    }>;
 }

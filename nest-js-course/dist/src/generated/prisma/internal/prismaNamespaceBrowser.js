@@ -65,6 +65,7 @@ exports.UserScalarFieldEnum = {
     passwordHash: 'passwordHash',
     email: 'email',
     active: 'active',
+    avatar: 'avatar',
     createdAt: 'createdAt'
 };
 exports.SortOrder = {

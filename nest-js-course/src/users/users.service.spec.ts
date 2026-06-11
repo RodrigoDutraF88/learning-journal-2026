@@ -104,7 +104,7 @@ describe('UserService', () => {
     it('should rturn a user when found', async () =>{
         //arange
         const moackUser = {
-            id: if,
+            id: 1,
             name: 'rod',
             email: 'rodrigo@email.com',
             avatar: null,
