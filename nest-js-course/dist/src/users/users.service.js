@@ -8,11 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const hashing_service_1 = require("../auth/hash/hashing.service");
+const path_1 = __importDefault(require("path"));
+const promises_1 = __importDefault(require("fs/promises"));
 let UsersService = class UsersService {
     prisma;
     hashingservice;
@@ -120,6 +125,42 @@ let UsersService = class UsersService {
         }
         catch (err) {
             throw new common_1.HttpException('Falha a deletar user', common_1.HttpStatus.NOT_FOUND);
+        }
+    }
+    async uploadAvatarImage(tokenPayload, file) {
+        try {
+            const mimeType = file.mimetype;
+            const fileExtension = path_1.default.extname(file.originalname).toLowerCase().substring(1);
+            const fileName = `${tokenPayload.sub}.${fileExtension}`;
+            const fileLocale = path_1.default.resolve(process.cwd(), 'files', fileName);
+            await promises_1.default.writeFile(fileLocale, file.buffer);
+            const user = await this.prisma.user.findFirst({
+                where: {
+                    id: tokenPayload.sub
+                }
+            });
+            if (!user) {
+                throw new common_1.HttpException('Falha ao atualizar o avatar do usuário!', common_1.HttpStatus.BAD_REQUEST);
+            }
+            const updatedUser = await this.prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    avatar: fileName
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    avatar: true,
+                    name: true
+                }
+            });
+            return updatedUser;
+        }
+        catch (err) {
+            console.log(err);
+            throw new common_1.HttpException('Falha ao atualizar o avatar do usuário!', common_1.HttpStatus.BAD_REQUEST);
         }
     }
 };

@@ -34,7 +34,11 @@ exports.AppModule = AppModule = __decorate([
                 rootPath: (0, path_1.join)(__dirname, '..', '..', 'files'),
                 serveRoot: "/files"
             }),
-            config_1.ConfigModule.forRoot(),
+            config_1.ConfigModule.forRoot({
+                envFilePath: process.env.NODE_ENV ?
+                    `.env.${process.env.NODE_ENV}` :
+                    `.env`
+            }),
             tasks_module_1.TasksModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule

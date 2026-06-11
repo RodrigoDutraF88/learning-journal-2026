@@ -29,4 +29,10 @@ export declare class UsersService {
     delete(id: number, tokenPayload: PayloadTokenDto): Promise<{
         message: string;
     }>;
+    uploadAvatarImage(tokenPayload: PayloadTokenDto, file: any): Promise<{
+        name: string;
+        id: number;
+        email: string;
+        avatar: string | null;
+    }>;
 }
