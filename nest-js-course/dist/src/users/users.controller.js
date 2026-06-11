@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create.user.dto");
@@ -21,6 +22,7 @@ const auth_token_guard_1 = require("../auth/guard/auth.token.guard");
 const token_payload_param_1 = require("../auth/param/token-payload.param");
 const payload_token_dto_1 = require("../auth/dto/payload-token.dto");
 const platform_express_1 = require("@nestjs/platform-express");
+const swagger_1 = require("@nestjs/swagger");
 let UsersController = class UsersController {
     userService;
     constructor(userService) {
@@ -46,6 +48,7 @@ let UsersController = class UsersController {
 exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Get)(':id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -53,6 +56,7 @@ __decorate([
 ], UsersController.prototype, "findOneUser", null);
 __decorate([
     (0, common_1.Post)(),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateuserDto]),
@@ -61,6 +65,7 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(auth_token_guard_1.AuthTokenGuard),
     (0, common_1.Patch)(':id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, token_payload_param_1.TokenPayloadParam)()),
@@ -72,6 +77,7 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(auth_token_guard_1.AuthTokenGuard),
     (0, common_1.Delete)(':id'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, token_payload_param_1.TokenPayloadParam)()),
     __metadata("design:type", Function),
@@ -79,8 +85,10 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "deleteUser", null);
 __decorate([
+    (0, swagger_1.ApiConsumes)('multipart/fromt-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, common_1.Post)('upload'),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, token_payload_param_1.TokenPayloadParam)()),
     __param(1, (0, common_1.UploadedFile)(new common_1.ParseFilePipeBuilder()
         .addFileTypeValidator({
