@@ -1,48 +1,23 @@
-/*
- * Tarefa 4 - Algoritmos de Busca
- * Disciplina: Estruturas de Dados I - UnB/FGA
- * Professor: MSc. Filipe Emidio Torres
- *
- * Arquivo de dados: Lista_Municipios_com_IBGE_Brasil_Versao_CSV.csv
- * Fonte: https://blog.mds.gov.br/redesuas/lista-de-municipios-brasileiros/
- *
- * Estrutura do CSV (separador ponto-e-virgula):
- *   IBGE ; Municipio ; UF ; Regiao ; Populacao ; Porte
- *
- * O arquivo esta ordenado pelo campo IBGE (inteiro), o que permite
- * aplicar busca binaria diretamente sobre o vetor de indices.
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-/* ------------------------------------------------------------------ */
-/* Constantes                                                           */
-/* ------------------------------------------------------------------ */
-
+//Constantes
 #define NOME_ARQUIVO "Lista_Municipios_com_IBGE_Brasil_Versao_CSV.csv"
 #define TAM_CAMPO    128
 
-/* ------------------------------------------------------------------ */
-/* Tipos                                                                */
-/* ------------------------------------------------------------------ */
+// Tipos                                                               
 
-/*
- * Indice: o que fica carregado em memoria o tempo todo.
- * Armazena apenas o codigo IBGE e o numero da linha no arquivo,
- * conforme especificado no enunciado (opcao 1).
- */
+//Indice: o que fica carregado em memoria o tempo todo.Armazena apenas o codigo IBGE e o numero da linha no arquivo, conforme especificado.
+
 typedef struct {
-    int ibge;   /* codigo do municipio (chave de busca) */
-    int linha;  /* numero da linha no CSV (1 = cabecalho, 2 = primeiro municipio, ...) */
+    int ibge;   
+    int linha; 
 } Indice;
 
-/*
- * Registro completo: usado somente ao exibir o resultado de uma consulta.
- * Os campos sao lidos sob demanda diretamente do arquivo.
- */
+// Registro completo: usado somente ao exibir o resultado de uma consulta.Os campos sao lidos sob demanda diretamente do arquivo.
+
 typedef struct {
     int  ibge;
     char municipio[TAM_CAMPO];
@@ -52,9 +27,7 @@ typedef struct {
     char porte[TAM_CAMPO];
 } Municipio;
 
-/* ------------------------------------------------------------------ */
-/* Prototipos                                                           */
-/* ------------------------------------------------------------------ */
+//Prototipos                                                           
 
 int       carregarIndice(const char *nomeArq, Indice **vetor);
 int       buscaSequencial(Indice *vetor, int n, int ibge);
@@ -65,17 +38,13 @@ void      consultarMunicipio(Indice *vetor, int n);
 void      liberarMemoria(Indice **vetor);
 double    medirTempo(clock_t inicio, clock_t fim);
 
-/* ------------------------------------------------------------------ */
-/* main                                                                 */
-/* ------------------------------------------------------------------ */
-
 int main(void) {
-    Indice *vetor = NULL;   /* vetor de indices alocado dinamicamente */
-    int     n     = 0;      /* quantidade de municipios carregados    */
+    Indice *vetor = NULL;  
+    int     n     = 0;     
     int     opcao;
 
     do {
-        printf("\n===== Algoritmos de Busca - Censo IBGE 2010 =====\n");
+        printf("\n Algoritmos de Busca - Censo IBGE 2010\n");
         printf("1. Carregar dados\n");
         printf("2. Consultar municipio\n");
         printf("3. Sair\n");
@@ -84,7 +53,7 @@ int main(void) {
 
         switch (opcao) {
             case 1:
-                /* libera vetor anterior, se existir */
+                // libera vetor anterior, se existir 
                 if (vetor != NULL) {
                     liberarMemoria(&vetor);
                     n = 0;
@@ -115,12 +84,9 @@ int main(void) {
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* carregarIndice                                                        */
-/*                                                                      */
-/* Le o arquivo CSV e preenche o vetor de Indice com (ibge, linha).    */
-/* Retorna o numero de municipios carregados, ou -1 em erro.           */
-/* ------------------------------------------------------------------ */
+
+//carregarIndice :Le o arquivo CSV e preenche o vetor de Indice com (ibge, linha).Retorna o numero de municipios carregados, ou -1 em erro.          
+
 
 int carregarIndice(const char *nomeArq, Indice **vetor) {
     FILE *arq = fopen(nomeArq, "r");
@@ -129,11 +95,11 @@ int carregarIndice(const char *nomeArq, Indice **vetor) {
         return -1;
     }
 
-    /* --- primeira passagem: contar linhas de dados (excluindo cabecalho) --- */
+    // primeira passagem: contar linhas de dados (excluindo cabecalho)
     char buf[512];
     int total = 0;
 
-    /* descarta cabecalho */
+    // descarta cabecalho */
     if (fgets(buf, sizeof(buf), arq) == NULL) {
         fclose(arq);
         return -1;
@@ -142,7 +108,7 @@ int carregarIndice(const char *nomeArq, Indice **vetor) {
     while (fgets(buf, sizeof(buf), arq) != NULL)
         total++;
 
-    /* --- alocar vetor --- */
+    //alocar vetor 
     *vetor = (Indice *) malloc(total * sizeof(Indice));
     if (*vetor == NULL) {
         fprintf(stderr, "Erro: falha ao alocar memoria.\n");
@@ -150,15 +116,15 @@ int carregarIndice(const char *nomeArq, Indice **vetor) {
         return -1;
     }
 
-    /* --- segunda passagem: preencher vetor --- */
+    //segunda passagem: preencher vetor 
     rewind(arq);
-    fgets(buf, sizeof(buf), arq); /* pula cabecalho novamente */
+    fgets(buf, sizeof(buf), arq); // pula cabecalho novamente 
 
     int i = 0;
-    int numLinha = 2; /* linha 1 = cabecalho; dados comecam na linha 2 */
+    int numLinha = 2; // linha 1 = cabecalho; dados comecam na linha 2 
 
     while (fgets(buf, sizeof(buf), arq) != NULL && i < total) {
-        /* o primeiro campo separado por ';' e o codigo IBGE */
+        // o primeiro campo separado por ';' e o codigo IBGE 
         char *tok = strtok(buf, ";");
         if (tok != NULL) {
             (*vetor)[i].ibge  = atoi(tok);
@@ -173,12 +139,8 @@ int carregarIndice(const char *nomeArq, Indice **vetor) {
     return i;
 }
 
-/* ------------------------------------------------------------------ */
-/* buscaSequencial                                                       */
-/*                                                                      */
-/* Percorre o vetor do inicio ao fim procurando o codigo IBGE.         */
-/* Retorna o indice no vetor, ou -1 se nao encontrado.                 */
-/* ------------------------------------------------------------------ */
+// buscaSequencial: Percorre o vetor do inicio ao fim procurando o codigo IBGE.Retorna o indice no vetor, ou -1 se nao encontrado.                                                   */
+
 
 int buscaSequencial(Indice *vetor, int n, int ibge) {
     for (int i = 0; i < n; i++) {
@@ -187,21 +149,14 @@ int buscaSequencial(Indice *vetor, int n, int ibge) {
     }
     return -1;
 }
-
-/* ------------------------------------------------------------------ */
-/* buscaBinaria                                                          */
-/*                                                                      */
-/* Busca pelo codigo IBGE num vetor ja ordenado por esse campo.        */
-/* A cada iteracao descarta metade dos elementos restantes.            */
-/* Retorna o indice no vetor, ou -1 se nao encontrado.                 */
-/* ------------------------------------------------------------------ */
+//buscaBinaria:Busca pelo codigo IBGE num vetor ja ordenado por esse campo. A cada iteracao descarta metade dos elementos restantes.Retorna o indice no vetor, ou -1 se nao encontrado.
 
 int buscaBinaria(Indice *vetor, int n, int ibge) {
     int esq = 0;
     int dir = n - 1;
 
     while (esq <= dir) {
-        int meio = esq + (dir - esq) / 2; /* evita overflow */
+        int meio = esq + (dir - esq) / 2; // evita overflow 
 
         if (vetor[meio].ibge == ibge)
             return meio;
@@ -213,12 +168,7 @@ int buscaBinaria(Indice *vetor, int n, int ibge) {
     return -1;
 }
 
-/* ------------------------------------------------------------------ */
-/* lerLinha                                                              */
-/*                                                                      */
-/* Abre o arquivo, avanca ate a linha indicada e parseia os campos     */
-/* para a struct Municipio. Retorna 0 em sucesso, -1 em erro.          */
-/* ------------------------------------------------------------------ */
+//lerLinha:  Abre o arquivo, avanca ate a linha indicada e parseia os campos.para a struct Municipio. Retorna 0 em sucesso, -1 em erro.                                                                  */
 
 int lerLinha(const char *nomeArq, int numLinha, Municipio *m) {
     FILE *arq = fopen(nomeArq, "r");
@@ -235,17 +185,17 @@ int lerLinha(const char *nomeArq, int numLinha, Municipio *m) {
         }
     }
 
-    /* le a linha alvo */
+    // le a linha alvo
     if (fgets(buf, sizeof(buf), arq) == NULL) {
         fclose(arq);
         return -1;
     }
     fclose(arq);
 
-    /* remove '\n' e '\r' do final */
+    // remove '\n' e '\r' do final 
     buf[strcspn(buf, "\r\n")] = '\0';
 
-    /* parseia os 6 campos separados por ';' */
+    // parseia os 6 campos separados por ';' 
     char *tok;
 
     tok = strtok(buf, ";");  if (tok) m->ibge = atoi(tok);
@@ -258,10 +208,7 @@ int lerLinha(const char *nomeArq, int numLinha, Municipio *m) {
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* exibirMunicipio                                                       */
-/* ------------------------------------------------------------------ */
-
+//exibirMunicipio    
 void exibirMunicipio(const Municipio *m) {
     printf("  Municipio  : %s\n", m->municipio);
     printf("  UF         : %s\n", m->uf);
@@ -270,22 +217,12 @@ void exibirMunicipio(const Municipio *m) {
     printf("  Porte      : %s\n", m->porte);
 }
 
-/* ------------------------------------------------------------------ */
-/* medirTempo                                                            */
-/*                                                                      */
-/* Converte dois instantes de clock_t para segundos.                   */
-/* ------------------------------------------------------------------ */
+//medirTempo: Converte dois instantes de clock_t para segundos.
 
 double medirTempo(clock_t inicio, clock_t fim) {
     return (double)(fim - inicio) / CLOCKS_PER_SEC;
 }
-
-/* ------------------------------------------------------------------ */
-/* consultarMunicipio                                                    */
-/*                                                                      */
-/* Le um codigo IBGE do usuario, executa as duas buscas medindo tempo  */
-/* e exibe o resultado.                                                 */
-/* ------------------------------------------------------------------ */
+//consultarMunicipio: Le um codigo IBGE do usuario, executa as duas buscas medindo tempo.e exibe o resultado.
 
 void consultarMunicipio(Indice *vetor, int n) {
     int ibge;
@@ -296,13 +233,13 @@ void consultarMunicipio(Indice *vetor, int n) {
     int pos;
     clock_t t_inicio, t_fim;
 
-    /* ---- Busca Sequencial ---- */
+    // Busca Sequencial 
     t_inicio = clock();
     pos = buscaSequencial(vetor, n, ibge);
     t_fim = clock();
     double tempo_seq = medirTempo(t_inicio, t_fim);
 
-    /* ---- Busca Binaria ---- */
+    // Busca Binaria 
     t_inicio = clock();
     int pos_bin = buscaBinaria(vetor, n, ibge);
     t_fim = clock();
@@ -311,29 +248,27 @@ void consultarMunicipio(Indice *vetor, int n) {
     if (pos == -1) {
         printf("Municipio com codigo IBGE %d nao encontrado.\n", ibge);
     } else {
-        /* usa a posicao encontrada (qualquer uma serve; ambas devem coincidir) */
+        // usa a posicao encontrada (qualquer uma serve; ambas devem coincidir) 
         if (lerLinha(NOME_ARQUIVO, vetor[pos].linha, &m) == 0) {
             printf("\n--- Dados do Municipio ---\n");
             exibirMunicipio(&m);
         }
     }
 
-    /* exibe tempos independentemente de ter encontrado ou nao */
+    // exibe tempos independentemente de ter encontrado ou nao
     printf("\n--- Tempo de execucao ---\n");
     printf("  Busca Sequencial : %.9f segundos\n", tempo_seq);
     printf("  Busca Binaria    : %.9f segundos\n", tempo_bin);
 
-    /* aviso se os dois algoritmos divergirem (nao deveria ocorrer) */
+    // aviso se os dois algoritmos divergirem (nao deveria ocorrer)
     if (pos != pos_bin) {
         fprintf(stderr, "Atencao: resultados divergentes entre as buscas.\n");
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* liberarMemoria                                                        */
-/*                                                                      */
-/* Libera o vetor alocado e anula o ponteiro para evitar uso posterior. */
-/* ------------------------------------------------------------------ */
+
+// liberarMemoria                                                       
+
 
 void liberarMemoria(Indice **vetor) {
     if (*vetor != NULL) {
