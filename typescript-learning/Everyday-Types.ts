@@ -52,8 +52,104 @@ function printCoord(pt: { x: number; y: number }) {
 printCoord({ x: 3, y: 7 });
 
 // adding "?" specify the ones that are optional
+function printName(obj: { first: string; last?: string }) {
+  // ...
+}
+
 //Union Types,
 function printId( id: number | string){
     console.log("Your ID is:" + id);
 }
+//inside the function you can check its type with typeof, and do a if else for the type, in this exemple, number or string
 
+//Type Aliases: a name for any type
+//example:
+type Point = {
+  x: number;
+  y: number;
+
+}
+function cordenadas(pt: Point){ //here
+  console.log("The coordinate's x value is " + pt.x);
+  console.log("The coordinate's y value is " + pt.y);
+}
+ 
+printCoord({ x: 100, y: 100 });
+
+//or even
+type ID = number | string;
+
+// Just like I saw in the last lesson, Interfaces declaration is another way to name a object type
+
+//DIFERENCE BETWEEN TYPE ALIASES AND INTERFACES
+// the key distinction is that a type cannot be re-opened to add a new 
+//vs a interface which is always extendable
+
+type Window = {
+  title: string;
+}
+
+type Window = {
+  ts: TypeScriptAPI;
+}
+
+ // Error: Duplicate identifier 'Window'.
+
+//USING INTERFACE THIS WOULD BE POSSIBLE
+
+//Type Assertions
+//you can use type assertion to specify a more specific type
+const myCanvas = <HTMLCanvasElement>document.getElementById("main_canvas");
+
+//Combining literals into unions:
+function printText(s: string, alignment: "left" | "right" | "center") {
+  // ...
+}
+printText("Hello, world", "left");
+//another exemple
+function compare(a: string, b: string): -1 | 0 | 1 {
+  return a === b ? 0 : a > b ? 1 : -1;
+}
+
+//Combining with non literal types
+interface Options {
+  width: number;
+}
+function configure(x: Options | "auto") { //look
+  // ...
+}
+configure({ width: 100 });
+configure("auto");
+configure("automatic");
+
+//Literal Inference: when you initialize a variable with an object, typescirpt assumes that teh properties of that object might change values later
+
+//you can convert the entire object to be a type literal
+const req = {url: "https:blabla", method: "GET" } as const;
+handleRequest(req.url, req.method);
+
+
+//NULL : signal of absent
+//UNDEFINED : uninitialized value
+//they are both primitives
+
+//Non-null Assertion Operator(Postfix !)
+//Writing ! after any expression is effectively a type assertion that the value isn't null or undefined
+function Testando(x?: number | null){
+  //no error
+  console.log(x!.toFixed())
+}
+
+//Enums: Allows for describing a value which could be one of a set of possible named constants
+
+//Less common primitives:
+
+//bigint: used for large integers
+// Creating a bigint via the BigInt function
+const oneHundred: bigint = BigInt(100);
+ 
+// Creating a BigInt via the literal syntax
+const anotherHundred: bigint = 100n;
+
+//symbol: used to create globally unique reference via the Symbol()
+const firstName = Symbol("name");
