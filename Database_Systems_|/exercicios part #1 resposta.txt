@@ -1,0 +1,1 @@
+π Projeto_Codigo, CPF,Nome,Sexo,Idade,Gerente_CPF (Aloca ⟕ Pessoa)
